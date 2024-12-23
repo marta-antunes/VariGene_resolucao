@@ -1,0 +1,53 @@
+Início
+
+    # Passo 1: 
+    Download_dos_dados_raw(arquivo_NGS)
+    wget http://arquivo_NGS
+    verificar integridade dos arquivos
+    md5sum arquivo_NGS
+
+    # Passo 2: 
+    Pre_processamento_dos_dados(dados_raw)
+    input: dados não processados (read_1 e read_2)
+    filtrar por qualidade 20
+    tamanho das reads illumina 80% do tamanho da read. ou seja, para reads com 150 pb garantir tamanho mínimo 120
+    verificar se há overrepresented reads
+    
+    # Passo 3: 
+    Mapeamento_contra_o_genoma_humano(dados_pre_processados, genoma_referencia)
+    input: dados pre processados (read_1 e read_2)
+    output: sam file
+    bwa mem genoma_referencia read1.fq read2.fq > file.sam 
+
+    # Passo 4: 
+    Conversao_sam_para_bam(output_mapeamento)
+    opção -b para output bam
+    for file in folder/*.sam; do samtools view -b "$file" > "${file%.sam}.bam"; done
+    
+    #no caso de se querer fazer merge de bams de várias amostras
+    samtools merge -b /bamList.txt merged.bam
+    
+    #sort do bam
+    #index do bam
+
+    # Passo 5:
+    Identificacao_de_variantes(ficheiro_bam, genoma_referencia)
+    #index do genoma de referencia
+    samtools faidx genoma_referencia.fasta
+    
+    #estimar informacao estatistica para identificar variantes
+    samtools mpileup -u -t DP,SP -f genoma_referencia.fasta merged.bam 1>merged.mpileup 2>log_mpileup.log
+    #identificacao de variantes
+    bcftools call --threads 20 -mv -O v merged.mpileup 1> merged.vcf 2>call.log
+  
+    # Passo 6:
+    Filtragem_variantes_por_qualidade(ficheiro_vcf)
+    queremos qualidade da base 20, só genótipis com cobertura mínima 7, qualidade do genótipo 20, apenas variantes bialélicas e 
+    vcftools --vcf file_raw.vcf --minQ 20 --minDP 7 --min-alleles 2 --max-alleles 2 --minGQ 20 --recode --out file.Q30DP7GQ20
+
+    # Passo 7: 
+    Anotacao_de_variantes(ficheiro_vcf_filtrado)
+    hg19 é a base de dados
+    java -Xmx4g -jar /opt/tools/snpEff/snpEff.jar hg19 ficheiro_vcf_filtrado.recode.vcf > ficheiro_vcf_filtrado.ann.vcf
+
+Fim
