@@ -8,13 +8,14 @@ Início
 
     # Passo 2: 
     Pre_processamento_dos_dados(dados_raw)
-    input: dados não processados (read_1 e read_2)
+    input: dados paired-end não processados (read_1 e read_2)
     filtrar por qualidade 20
     tamanho das reads illumina 80% do tamanho da read. ou seja, para reads com 150 pb garantir tamanho mínimo 120
     verificar se há overrepresented reads
     
     # Passo 3: 
     Mapeamento_contra_o_genoma_humano(dados_pre_processados, genoma_referencia)
+    fazer o index do genoma de referencia e colocar na pasta de input
     input: dados pre processados (read_1 e read_2)
     output: sam file
     bwa mem genoma_referencia read1.fq read2.fq > file.sam 

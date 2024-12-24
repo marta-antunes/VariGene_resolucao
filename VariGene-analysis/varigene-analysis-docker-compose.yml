@@ -1,0 +1,9 @@
+﻿services:
+  varigene-analysis-pipeline:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./input:/usr/local/analysis/input
+      - ./results:/usr/local/analysis/results
+    entrypoint: ["/usr/local/analysis/analysis.sh", "/usr/local/analysis/input/read_1.fastq", "/usr/local/analysis/input/read_2.fastq", "/usr/local/analysis/input/genoma.fasta" ]
